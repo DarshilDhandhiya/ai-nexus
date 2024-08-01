@@ -9,7 +9,7 @@ const tools = [
     {
         label: "Conversation",
         icon: MessageSquare,
-        href: "/Conversation",
+        href: "/conversation",
         color: "text-violet-500",
         bgColor: "bg-violet-500/10"
     },
@@ -49,7 +49,9 @@ const DashboardPage = () => {
     return (
       <div>
         <div className="mb-8 space-y-4">
-          <h2 className="text-2xl md:text-4xl font-bold text-center">Explore the power of AI</h2>
+          {/* <h2 className="text-2xl md:text-4xl font-bold text-center">Explore the power of AI</h2> */}
+          <h2 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">Explore the power of AI</h2>
+
           <p className="text-muted-foreground font-light text-sm md:text-lg text-center">Chat with the smartest AI - Experience the power of AI</p>
         </div>
         <div className="px-4 md:px-20 lg:px-32 space-y-4">
@@ -67,6 +69,8 @@ const DashboardPage = () => {
             </Card>
           )))}
         </div>
+        <p className="text-muted-foreground font-light text-sm md:text-sm text-center italic">copyright</p>
+
       </div>
       );
 }
