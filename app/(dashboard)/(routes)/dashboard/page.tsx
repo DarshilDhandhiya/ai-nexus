@@ -16,28 +16,28 @@ const tools = [
     {
         label: "Image Generation",
         icon: ImageIcon,
-        href: "/Image",
+        href: "/image",
         color: "text-pink-700",
         bgColor: "bg-pink-700/10"
     },
     {
         label: "Video Generation",
         icon: VideoIcon,
-        href: "/Video",
+        href: "/video",
         color: "text-orange-700",
         bgColor: "bg-orange-700/10"
     },
     {
         label: "Music Generation",
         icon: Music,
-        href: "/Music",
+        href: "/music",
         color: "text-emerald-700",
         bgColor: "bg-emerald-700/10"
     },
     {
         label: "Code Generation",
         icon: Code,
-        href: "/Code",
+        href: "/code",
         color: "text-green-700",
         bgColor: "bg-green-700/10"
     }
