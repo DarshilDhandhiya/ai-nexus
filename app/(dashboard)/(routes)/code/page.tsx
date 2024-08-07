@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { UserAvatar } from "@/components/user-avatar";
-import { BotAvatar } from "@/components/boat-avatar";
+import { BotAvatar } from "@/components/bot-avatar";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 import { cn } from "@/lib/utils";
