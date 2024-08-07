@@ -20,7 +20,6 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 import { cn } from "@/lib/utils";
 import { formSchema } from "./constants";
-import { Chat } from "openai/resources/index.mjs";
 
 const Conversation = () => {
     const router = useRouter();
