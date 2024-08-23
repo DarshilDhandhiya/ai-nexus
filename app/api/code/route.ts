@@ -1,60 +1,45 @@
-import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from "openai";
+import axios from "axios";
 
-// import { checkSubscription } from "@/lib/subscription";
-// import { incrementApiLimit, checkApiLimit } from "@/lib/api-limit";
+export async function generateAnswerFromApi(question: string, apiKey: string): Promise<string> {
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        contents: [{ parts: [{ text: question }] }],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
-
-const instructionMessage: ChatCompletionRequestMessage = {
-  role: "system",
-  content: "You are a code generator. You must answer only in markdown code snippets. Use code comments for explanations."
+    return response.data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('[API_ERROR]', error.response?.data || error.message || error);
+    return "Sorry - Something went wrong. Please try again!";
+  }
 }
 
-export async function POST(
-  req: Request
-) {
+export async function POST(req: Request) {
   try {
-    const { userId } = auth();
     const body = await req.json();
-    const { messages  } = body;
+    const { question } = body;
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!process.env.GEMINI_API_KEY) {
+      return new NextResponse("Gemini API Key not configured.", { status: 500 });
     }
 
-    if (!configuration.apiKey) {
-      return new NextResponse("OpenAI API Key not configured.", { status: 500 });
+    if (!question) {
+      return new NextResponse("Question is required", { status: 400 });
     }
 
-    if (!messages) {
-      return new NextResponse("Messages are required", { status: 400 });
-    }
+    const answer = await generateAnswerFromApi(question, process.env.GEMINI_API_KEY);
 
-    // const freeTrial = await checkApiLimit();
-    // const isPro = await checkSubscription();
-
-    // if (!freeTrial && !isPro) {
-    //   return new NextResponse("Free trial has expired. Please upgrade to pro.", { status: 403 });
-    // }
-
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [instructionMessage, ...messages]
-    });
-
-    // if (!isPro) {
-    //   await incrementApiLimit();
-    // }
-
-    return NextResponse.json(response.data.choices[0].message);
+    return NextResponse.json({ answer });
   } catch (error) {
-    console.log('[CODE_ERROR]', error);
+    console.error('[CODE_ERROR]', error.response?.data || error.message || error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}
