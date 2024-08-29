@@ -1,7 +1,14 @@
-"use client"; // Ensure this file is treated as a client component
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Image from 'next/image';
+import { Button } from "@/components/ui/button";
+import { Card, CardFooter } from "@/components/ui/card";
+import { Heading } from "@/components/ui/heading";
+import { Empty } from "@/components/empty";
+import { Loader } from "@/components/loader";
+import { Input } from "@/components/ui/input";
+import { ImageIcon } from "lucide-react";
 
 // Define the API context
 const ImageContext = createContext<any>(null);
@@ -16,8 +23,11 @@ const API = ({ children }: { children: React.ReactNode }) => {
   const fetchData = async (url: string) => {
     setIsLoading(true);
     try {
-      // Replace `url` with the actual endpoint path for Unsplash API
-      const res = await fetch(`https://api.unsplash.com/${url}`);
+      const res = await fetch(`https://api.unsplash.com/${url}`, {
+        headers: {
+          Authorization: `Client-ID ${process.env.NEXT_PUBLIC_UNSPLASH_API_KEY}`,
+        },
+      });
       const data = await res.json();
       setResponse(data.results);
     } catch (error) {
@@ -36,18 +46,19 @@ const API = ({ children }: { children: React.ReactNode }) => {
 
 // Jumbutron Component
 const Jumbutron = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-gray-900 flex items-center py-10">
-    <div className='max-w-md mx-auto w-full'>
-      <h1 className='text-white text-center text-2xl font-bold mb-5'>Search You Want</h1>
-      {children}
-    </div>
+  <div>
+    <Heading 
+      title="Image Generation"
+      description="Turn your prompt into an image."
+      icon={ImageIcon}
+      iconColor="text-pink-600"
+      bgColor="bg-pink-600/10"
+    />
+    {children}
   </div>
 );
 
-// LDMode Component
-const LDMode = () => <div className='light'><p></p></div>;
-
-// SearchField Component
+// Updated SearchField Component
 const SearchField = () => {
   const [searchValue, setSearchValue] = React.useState<string>('');
   const context = useContext(ImageContext);
@@ -60,52 +71,76 @@ const SearchField = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value);
   const handleButtonSearch = () => {
-    const searchTerm = prompt("Enter your search term:");
-    if (searchTerm && searchTerm.trim()) {
-      fetchData(`search/photos?page=1&query=${searchTerm}&client_id=${process.env.NEXT_PUBLIC_UNSPLASH_API_KEY}`);
-      setSearchImage(searchTerm);
+    if (searchValue.trim()) {
+      fetchData(`search/photos?page=1&query=${searchValue}`);
+      setSearchImage(searchValue);
+      setSearchValue('');
     }
   };
 
   const handleEnterSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchValue.trim()) {
-      fetchData(`search/photos?page=1&query=${searchValue}&client_id=${process.env.NEXT_PUBLIC_UNSPLASH_API_KEY}`);
+      fetchData(`search/photos?page=1&query=${searchValue}`);
       setSearchImage(searchValue);
       setSearchValue('');
     }
   };
 
   return (
-    <div className="flex">
-      <input
-        className="bg-gray-50 border border-gray-300 text-sm w-full indent-2 p-2.5 outline-none focus:border-blue-500 focus:ring-2 rounded-tl rounded-bl"
+    <div className="bg-white rounded-lg border w-full p-4 flex items-center space-x-4">
+      <Input
+        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent flex-1"
         type="search"
         placeholder="Search Anything..."
         value={searchValue}
         onChange={handleInputChange}
         onKeyDown={handleEnterSearch}
       />
-      <button
+      <Button
         onClick={handleButtonSearch}
         disabled={!searchValue.trim()}
-        className="bg-blue-600 px-6 py-2.5 text-white rounded-tr rounded-br focus:ring-2 focus:ring-blue-300 disabled:bg-gray-400"
-      >Search</button>
+        className="w-32"
+      >
+        Search
+      </Button>
     </div>
   );
 };
 
 // Image Component
 const ImageComponent = ({ data }: { data: { urls: { regular: string; small: string }; alt_description: string } }) => {
+  // Handle download functionality
+  const handleDownload = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation(); // Prevents the image click action from being triggered
+    const a = document.createElement('a');
+    a.href = data.urls.regular;
+    a.download = 'image'; // or any specific filename if needed
+    a.click();
+  };
+
   return (
-    <a href={data.urls.regular} target="_blank" rel="noreferrer">
-      <Image
-        className="h-72 w-full object-cover rounded-lg shadow-md"
-        src={data.urls.small}
-        alt={data.alt_description || 'Image'} // Ensure alt text is provided
-        width={500} // Provide an appropriate width
-        height={500} // Provide an appropriate height
-      />
-    </a>
+    <Card key={data.urls.regular} className="rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105">
+      {/* Make image clickable to open in a new tab */}
+      <a href={data.urls.regular} target="_blank" rel="noopener noreferrer">
+        <div className="relative aspect-square cursor-pointer">
+          <Image
+            alt={data.alt_description || 'Image'}
+            src={data.urls.small}
+            fill
+            className="object-cover"
+          />
+        </div>
+      </a>
+      <CardFooter className="p-2 bg-gray-50 border-t">
+        <Button 
+          onClick={handleDownload} 
+          variant="secondary" 
+          className="w-full"
+        >
+          Download
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -137,22 +172,28 @@ const Images = () => {
   const noImagesFound = !isLoading && response.length === 0;
 
   return (
-    <>
+    <div className="px-4 lg:px-8 mt-4">
+      {isLoading && (
+        <div className="p-20">
+          <Loader />
+        </div>
+      )}
+      {noImagesFound && !isLoading && (
+        <Empty label="No images found." />
+      )}
       {!noImagesFound && (
         <h1 className="text-center mt-6 underline text-2xl">
           Results for {searchImage || 'Ai Nexus'}
         </h1>
       )}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-10 max-w-7xl mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8">
         {isLoading ? (
-          <Skeleton item={imageCount || 10} /> // Default to 10 if imageCount is undefined
-        ) : noImagesFound ? (
-          <div className="text-center text-xl col-span-full">No images found</div>
+          <Skeleton item={imageCount || 10} />
         ) : (
           response.slice(0, imageCount).map((data: any, key: number) => <ImageComponent key={key} data={data} />)
         )}
       </div>
-    </>
+    </div>
   );
 };
 
@@ -163,7 +204,6 @@ const Page = () => {
       <Jumbutron>
         <SearchField />
       </Jumbutron>
-      <LDMode />
       <Images />
     </API>
   );
