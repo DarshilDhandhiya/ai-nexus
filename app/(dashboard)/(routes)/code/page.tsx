@@ -25,7 +25,7 @@ function CodePage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setGeneratingAnswer(true);
-    setAnswer("Loading your answer... \n It might take up to 10 seconds");
+    setAnswer("");
 
     const answer = await generateAnswerFromApi(question, apiKey);
     setAnswer(answer);

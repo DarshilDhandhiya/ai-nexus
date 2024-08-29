@@ -1,50 +1,66 @@
-import { auth } from "@clerk/nextjs";
-import { NextResponse } from "next/server";
-import { Configuration, OpenAIApi } from "openai";
+"use client"; // Ensure this file is treated as a client component
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 
-const openai = new OpenAIApi(configuration);
+interface ImageContextType {
+  response: any[];
+  isLoading: boolean;
+  error: string;
+  fetchData: (url: string) => void;
+  searchImage: string;
+  setSearchImage: (value: string) => void;
+  imageCount: number;
+  setImageCount: (count: number) => void;
+}
 
-export async function POST(
-  req: Request
-) {
-  try {
-    const { userId } = auth();
-    const body = await req.json();
-    const { prompt, amount = 1, resolution = "512x512"  } = body;
+export const ImageContext = createContext<ImageContextType | undefined>(undefined);
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+const API = ({ children }: { children: ReactNode }) => {
+  const [searchImage, setSearchImage] = useState<string>('');
+  const [response, setResponse] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [imageCount, setImageCount] = useState<number>(10); // Default image count
+
+  const fetchData = async (url: string) => {
+    try {
+      setIsLoading(true);
+      setError('');
+      console.log(`Fetching data from: ${url}`); // Debugging log
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Client-ID ${process.env.NEXT_PUBLIC_UNSPLASH_API_KEY}`,
+        },
+      });
+      console.log('Response data:', res.data); // Debugging log
+      setResponse(res.data.results || []); // Ensure results are set correctly
+    } catch (err) {
+      console.error('Fetch error:', err); // Debugging log
+      setError('Failed to fetch data');
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if (!configuration.apiKey) {
-      return new NextResponse("OpenAI API Key not configured.", { status: 500 });
+  useEffect(() => {
+    if (searchImage) {
+      fetchData(`https://api.unsplash.com/search/photos?page=1&query=${searchImage}`);
     }
+  }, [searchImage]);
 
-    if (!prompt) {
-      return new NextResponse("Prompt IS required", { status: 400 });
-    }
+  const value: ImageContextType = {
+    response,
+    isLoading,
+    error,
+    fetchData,
+    searchImage,
+    setSearchImage,
+    imageCount,
+    setImageCount,
+  };
 
-    if (!amount) {
-      return new NextResponse("Amount IS required", { status: 400 });
-    }
-
-    if (!resolution) {
-      return new NextResponse("Resolution IS required", { status: 400 });
-    }
-
-    const response = await openai.createImage({
-      prompt,
-      n: parseInt(amount, 10),
-      size: resolution,
-    });
-
-    return NextResponse.json(response.data.data);
-  } catch (error) {
-    console.log('[IMAGE_ERROR]', error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
+  return <ImageContext.Provider value={value}>{children}</ImageContext.Provider>;
 };
+
+export default API;
