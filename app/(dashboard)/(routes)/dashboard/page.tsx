@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { MessageSquare, ImageIcon, VideoIcon, Music, Code, ArrowRight } from "lucide-react";
+import { MessageSquare, ImageIcon, ImagePlus, VideoIcon, Music, Code, ArrowRight } from "lucide-react";
 
 const tools = [
     {
@@ -14,12 +14,19 @@ const tools = [
         bgColor: "bg-violet-500/10"
     },
     {
-        label: "Image Generation",
+        label: "Image Search",
         icon: ImageIcon,
-        href: "/image",
+        href: "/image_s",
         color: "text-pink-700",
         bgColor: "bg-pink-700/10"
     },
+    {
+      label: "Image Generation",
+      icon: ImagePlus,
+      href: "/image_g",
+      color: "text-pink-700",
+      bgColor: "bg-pink-700/10"
+  },
     {
         label: "Video Generation",
         icon: VideoIcon,

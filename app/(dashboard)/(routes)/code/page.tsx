@@ -77,7 +77,7 @@ function CodePage() {
             </div>
           )}
           {answer === "" && !generatingAnswer && (
-            <Empty label="No conversation started." />
+            <Empty label="No code generated." />
           )}
           <div className="flex flex-col-reverse gap-y-4">
             {answer && (

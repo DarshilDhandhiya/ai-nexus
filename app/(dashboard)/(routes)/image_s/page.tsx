@@ -48,8 +48,8 @@ const API = ({ children }: { children: React.ReactNode }) => {
 const Jumbutron = ({ children }: { children: React.ReactNode }) => (
   <div>
     <Heading 
-      title="Image Generation"
-      description="Turn your prompt into an image."
+      title="Image Search"
+      description="Search your prompt into an image."
       icon={ImageIcon}
       iconColor="text-pink-600"
       bgColor="bg-pink-600/10"
