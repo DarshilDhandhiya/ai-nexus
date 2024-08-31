@@ -1,4 +1,4 @@
-"use client"; // Ensure this file is treated as a client component
+"use client";
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';

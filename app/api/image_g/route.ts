@@ -1,50 +1,40 @@
-import { auth } from "@clerk/nextjs";
-import { NextResponse } from "next/server";
-import { Configuration, OpenAIApi } from "openai";
+// app/api.tsx
+import axios from "axios";
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+export const fetchImages = async (
+  promptCall: string,
+  seedValue: number,
+  dropDownValue: string,
+  radioValue: string
+): Promise<Blob | undefined> => {
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  const options = {
+    method: "POST",
+    url: "https://api.segmind.com/v1/sdxl1.0-txt2img",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    responseType: "arraybuffer" as const,
+    data: {
+      prompt: promptCall,
+      seed: seedValue,
+      scheduler: dropDownValue,
+      num_inference_steps: radioValue,
+      negative_prompt: "NONE",
+      samples: "1",
+      guidance_scale: "7.5",
+      strength: "1",
+      shape: 512,
+    },
+  };
 
-const openai = new OpenAIApi(configuration);
-
-export async function POST(
-  req: Request
-) {
   try {
-    const { userId } = auth();
-    const body = await req.json();
-    const { prompt, amount = 1, resolution = "512x512"  } = body;
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    if (!configuration.apiKey) {
-      return new NextResponse("OpenAI API Key not configured.", { status: 500 });
-    }
-
-    if (!prompt) {
-      return new NextResponse("Prompt IS required", { status: 400 });
-    }
-
-    if (!amount) {
-      return new NextResponse("Amount IS required", { status: 400 });
-    }
-
-    if (!resolution) {
-      return new NextResponse("Resolution IS required", { status: 400 });
-    }
-
-    const response = await openai.createImage({
-      prompt,
-      n: parseInt(amount, 10),
-      size: resolution,
-    });
-
-    return NextResponse.json(response.data.data);
+    const response = await axios.request(options);
+    const imageBlob = new Blob([response.data], { type: "image/jpeg" });
+    return imageBlob;
   } catch (error) {
-    console.log('[IMAGE_ERROR]', error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error while fetching Gen AI model API", error);
+    return undefined;
   }
 };
