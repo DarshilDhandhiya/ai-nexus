@@ -27,20 +27,20 @@ const tools = [
       color: "text-pink-700",
       bgColor: "bg-pink-700/10"
   },
-    {
-        label: "Video Generation",
-        icon: VideoIcon,
-        href: "/video",
-        color: "text-orange-700",
-        bgColor: "bg-orange-700/10"
-    },
-    {
-        label: "Music Generation",
-        icon: Music,
-        href: "/music",
-        color: "text-emerald-700",
-        bgColor: "bg-emerald-700/10"
-    },
+    // {
+    //     label: "Video Generation",
+    //     icon: VideoIcon,
+    //     href: "/video",
+    //     color: "text-orange-700",
+    //     bgColor: "bg-orange-700/10"
+    // },
+    // {
+    //     label: "Music Generation",
+    //     icon: Music,
+    //     href: "/music",
+    //     color: "text-emerald-700",
+    //     bgColor: "bg-emerald-700/10"
+    // },
     {
         label: "Code Generation",
         icon: Code,
