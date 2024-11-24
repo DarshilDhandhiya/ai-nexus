@@ -249,14 +249,14 @@ const Home = () => {
             <option value="Euler">Euler Method</option>
             <option value="LMS">Laplacian Method (LMS)</option>
           </select>
-          <input
+          {/* <input
             type="number"
             name="seed"
             value={seedValue}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded"
             placeholder="Enter seed value"
-          />
+          /> */}
         </div>
 
       </div>
