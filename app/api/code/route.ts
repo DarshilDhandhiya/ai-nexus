@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-export async function generateAnswerFromApi(question: string, apiKey: string): Promise<string> {
+// Make this a private function by removing the 'export' keyword
+const generateAnswerFromApi = async (question: string, apiKey: string): Promise<string> => {
   try {
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
@@ -16,12 +17,13 @@ export async function generateAnswerFromApi(question: string, apiKey: string): P
     );
 
     return response.data.candidates[0].content.parts[0].text;
-  } catch (error) {
+  } catch (error: any) {
     console.error('[API_ERROR]', error.response?.data || error.message || error);
     return "Sorry - Something went wrong. Please try again!";
   }
-}
+};
 
+// Only export the route handler
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -39,7 +41,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ answer });
   } catch (error) {
-    console.error('[CODE_ERROR]', error.response?.data || error.message || error);
+    console.log('[CODE_ERROR]', error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
