@@ -9,7 +9,6 @@ import {
     Music,
     Settings,
     Twitter,
-    VideoIcon,
   } from "lucide-react";
   
   export const MAX_FREE_COUNTS = 5 as const;
@@ -65,13 +64,6 @@ import {
       color: "text-pink-700",
       bgColor: "bg-pink-700/10",
       href: "/image",
-    },
-    {
-      label: "Video Generation",
-      icon: VideoIcon,
-      color: "text-orange-700",
-      bgColor: "bg-orange-700/10",
-      href: "/video",
     },
     {
       label: "Code Generation",

@@ -20,8 +20,6 @@ export const LandingHero = () => {
                 "Photo Search.",
                 "Photo Generation.",
                 "Code Generation.",
-                // "Music Generation.",
-                // "Video Generation.",
               ],
               autoStart: true,
               loop: true,
