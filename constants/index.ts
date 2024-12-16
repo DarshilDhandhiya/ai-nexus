@@ -6,7 +6,6 @@ import {
     Instagram,
     LayoutDashboard,
     MessageSquare,
-    Music,
     Settings,
     Twitter,
   } from "lucide-react";
@@ -50,13 +49,6 @@ import {
       color: "text-violet-500",
       bgColor: "bg-violet-500/10",
       href: "/conversation",
-    },
-    {
-      label: "Music Generation",
-      icon: Music,
-      color: "text-emerald-500",
-      bgColor: "bg-violet-500/10",
-      href: "/music",
     },
     {
       label: "Image Generation",
