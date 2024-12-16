@@ -1,66 +1,25 @@
-"use client";
-
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-interface ImageContextType {
-  response: any[];
-  isLoading: boolean;
-  error: string;
-  fetchData: (url: string) => void;
-  searchImage: string;
-  setSearchImage: (value: string) => void;
-  imageCount: number;
-  setImageCount: (count: number) => void;
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get('query');
+
+  if (!query) {
+    return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
+  }
+
+  try {
+    const response = await axios.get(`https://api.unsplash.com/search/photos?page=1&query=${query}`, {
+      headers: {
+        Authorization: `Client-ID ${process.env.UNSPLASH_API_KEY}`,
+      },
+    });
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    console.error('API error:', error);
+    return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 });
+  }
 }
 
-export const ImageContext = createContext<ImageContextType | undefined>(undefined);
-
-const API = ({ children }: { children: ReactNode }) => {
-  const [searchImage, setSearchImage] = useState<string>('');
-  const [response, setResponse] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [imageCount, setImageCount] = useState<number>(10); // Default image count
-
-  const fetchData = async (url: string) => {
-    try {
-      setIsLoading(true);
-      setError('');
-      console.log(`Fetching data from: ${url}`); // Debugging log
-      const res = await axios.get(url, {
-        headers: {
-          Authorization: `Client-ID ${process.env.NEXT_PUBLIC_UNSPLASH_API_KEY}`,
-        },
-      });
-      console.log('Response data:', res.data); // Debugging log
-      setResponse(res.data.results || []); // Ensure results are set correctly
-    } catch (err) {
-      console.error('Fetch error:', err); // Debugging log
-      setError('Failed to fetch data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (searchImage) {
-      fetchData(`https://api.unsplash.com/search/photos?page=1&query=${searchImage}`);
-    }
-  }, [searchImage]);
-
-  const value: ImageContextType = {
-    response,
-    isLoading,
-    error,
-    fetchData,
-    searchImage,
-    setSearchImage,
-    imageCount,
-    setImageCount,
-  };
-
-  return <ImageContext.Provider value={value}>{children}</ImageContext.Provider>;
-};
-
-export default API;
