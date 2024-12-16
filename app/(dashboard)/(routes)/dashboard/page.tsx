@@ -76,7 +76,7 @@ const DashboardPage = () => {
             </Card>
           )))}
         </div>
-        <p className="text-muted-foreground font-light text-sm md:text-sm text-center italic">copyright</p>
+        {/* <p className="text-muted-foreground font-light text-sm md:text-sm text-center italic">copyright</p> */}
 
       </div>
       );
