@@ -9,12 +9,12 @@ interface ImageContextType {
   error: string;
   fetchData: (url: string) => void;
   searchImage: string;
-  setSearchImage: React.Dispatch<React.SetStateAction<string>>; // Correct type for state setter
+  setSearchImage: React.Dispatch<React.SetStateAction<string>>; // Correct setter type
   imageCount: number;
-  setImageCount: React.Dispatch<React.SetStateAction<number>>; // Correct type for state setter
+  setImageCount: React.Dispatch<React.SetStateAction<number>>; // Correct setter type
 }
 
-// Initialize context
+// Create the ImageContext with a default undefined value
 export const ImageContext = createContext<ImageContextType | undefined>(undefined);
 
 const API = ({ children }: { children: ReactNode }) => {
@@ -24,6 +24,7 @@ const API = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string>("");
   const [imageCount, setImageCount] = useState<number>(10); // Default image count
 
+  // Function to fetch data from Unsplash API
   const fetchData = async (url: string) => {
     try {
       setIsLoading(true);
@@ -35,8 +36,8 @@ const API = ({ children }: { children: ReactNode }) => {
         },
       });
       console.log("Response data:", res.data); // Debugging log
-      setResponse(res.data.results || []); // Ensure results are set correctly
-    } catch (err: unknown) {
+      setResponse(res.data.results || []); // Ensure results are correctly set
+    } catch (err) {
       console.error("Fetch error:", err); // Debugging log
       setError("Failed to fetch data");
     } finally {
@@ -44,14 +45,14 @@ const API = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Automatically fetch data when searchImage changes
+  // Automatically fetch data when `searchImage` changes
   useEffect(() => {
     if (searchImage) {
       fetchData(`https://api.unsplash.com/search/photos?page=1&query=${searchImage}`);
     }
   }, [searchImage]);
 
-  // Ensure the `value` matches the `ImageContextType` interface
+  // Context value object
   const value: ImageContextType = {
     response,
     isLoading,
@@ -63,6 +64,7 @@ const API = ({ children }: { children: ReactNode }) => {
     setImageCount,
   };
 
+  // Return the context provider with children
   return (
     <ImageContext.Provider value={value}>
       {children}
