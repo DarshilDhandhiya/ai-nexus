@@ -4,7 +4,6 @@ import { useState, FormEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import { Code } from "lucide-react";
-import { generateAnswerFromApi } from "../../../api/code/route";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow as codeStyle } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -27,9 +26,23 @@ function CodePage() {
     setGeneratingAnswer(true);
     setAnswer("");
 
-    const answer = await generateAnswerFromApi(question, apiKey);
-    setAnswer(answer);
-    setGeneratingAnswer(false);
+    try {
+      const response = await fetch('/api/code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question }),
+      });
+
+      const data = await response.json();
+      setAnswer(data.answer);
+    } catch (error) {
+      console.error('Error generating answer:', error);
+      setAnswer("Sorry - Something went wrong. Please try again!");
+    } finally {
+      setGeneratingAnswer(false);
+    }
   }
 
   const handleCopy = () => {
@@ -94,7 +107,7 @@ function CodePage() {
                           const match = /language-(\w+)/.exec(className || "");
                           return !inline && match ? (
                             <SyntaxHighlighter
-                              style={codeStyle as any} // Cast to `any` to bypass type errors
+                              style={codeStyle as any}
                               language={match[1]}
                               PreTag="div"
                               {...props}
